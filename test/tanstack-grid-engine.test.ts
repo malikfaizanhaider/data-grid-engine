@@ -79,6 +79,37 @@ describe('TanStackGridEngine project setup', () => {
     expect(engine.getState().sorting).toEqual([{id: 'age', desc: true}]);
   });
 
+  it('normalizes and validates columns passed via updateOptions', () => {
+    const engine = new TanStackGridEngine<Person>({
+      data: [{id: 1, name: 'Amy', age: 33}],
+      columns,
+    });
+
+    engine.updateOptions({
+      columns: [
+        {
+          header: 'Person',
+          columns: [
+            {header: 'Display Name', accessorKey: 'name'},
+            {header: 'Years', accessorKey: 'age'},
+          ],
+        },
+      ],
+    });
+
+    expect(engine.getAllLeafColumns().map((col) => col.id)).toEqual(['name', 'age']);
+    expect(engine.getColumnOrder()).toEqual(['name', 'age']);
+
+    expect(() =>
+      engine.updateOptions({
+        columns: [
+          {id: 'dup', accessorKey: 'name', header: 'Name'},
+          {id: 'dup', accessorKey: 'age', header: 'Age'},
+        ],
+      }),
+    ).toThrow('Duplicate column id "dup" detected.');
+  });
+
   it('preserves valid falsey global filter values', () => {
     const engine = new TanStackGridEngine<Person>({
       data: [{id: 1, name: 'Amy', age: 0}],
