@@ -448,3 +448,7 @@ export class TanStackGridEngine<T> {
         this.notify();
     }
 }
+
+// Type-level merge so engine instances expose full TanStack Table APIs.
+// Runtime forwarding is handled by the constructor Proxy above.
+export interface TanStackGridEngine<T> extends Table<T> {}
