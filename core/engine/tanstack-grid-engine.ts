@@ -17,11 +17,10 @@ import {
 
     type Table,
     type TableState,
+    type TableOptions,
     type ColumnDef,
     type Updater,
-    type FilterFnOption,
-    type Row,
-    type RowModel,
+    type FilterFnOption, type Row, type RowModel,
 
     // State types
     type VisibilityState,
@@ -50,6 +49,10 @@ import type {
 type EngineConfig<T> = {
     data: T[];
     columns: ColumnDef<T, unknown>[];
+} & Omit<
+    Partial<TableOptions<T>>,
+    'data' | 'columns' | 'state' | 'onStateChange'
+> & {
     filterFns?: Record<string, FilterFn<T>>;
     globalFilterFn?: FilterFnOption<T>;
 };
@@ -67,7 +70,14 @@ export class TanStackGridEngine<T> {
     private data: T[];
     private columns: ColumnDef<T, unknown>[];
 
-    constructor({data, columns, filterFns, globalFilterFn}: EngineConfig<T>) {
+    constructor(config: EngineConfig<T>) {
+        const {
+            data,
+            columns,
+            filterFns,
+            globalFilterFn,
+            ...optionOverrides
+        } = config;
         this.data = data;
 
         // ✅ stable IDs
@@ -106,6 +116,7 @@ export class TanStackGridEngine<T> {
             state: this.state,
             filterFns,
             globalFilterFn: globalFilterFn ?? 'includesString',
+            ...optionOverrides,
 
             getRowId: (row: any, index: number) =>
                 row.id == null ? String(index) : String(row.id),
@@ -116,20 +127,19 @@ export class TanStackGridEngine<T> {
                 this.notify();
             },
 
-            renderFallbackValue: null,
+            renderFallbackValue: config.renderFallbackValue ?? null,
 
-            getCoreRowModel: getCoreRowModel(),
-            getSortedRowModel: getSortedRowModel(),
-            getFilteredRowModel: getFilteredRowModel(),
-            getPaginationRowModel: getPaginationRowModel(),
-            getFacetedRowModel: getFacetedRowModel(),
-            getFacetedUniqueValues: getFacetedUniqueValues(),
-            getFacetedMinMaxValues: getFacetedMinMaxValues(),
-            getGroupedRowModel: getGroupedRowModel(),
-            getExpandedRowModel: getExpandedRowModel(),
-            debugTable: true,
-            debugHeaders: true,
-            debugColumns: true,
+            getCoreRowModel: config.getCoreRowModel ?? getCoreRowModel(),
+            getFilteredRowModel: config.getFilteredRowModel ?? getFilteredRowModel(),
+            getGroupedRowModel: config.getGroupedRowModel ?? getGroupedRowModel(),
+            getSortedRowModel: config.getSortedRowModel ?? getSortedRowModel(),
+            getExpandedRowModel: config.getExpandedRowModel ?? getExpandedRowModel(),
+            getPaginationRowModel: config.getPaginationRowModel ?? getPaginationRowModel(),
+            getFacetedRowModel: config.getFacetedRowModel ?? getFacetedRowModel(),
+            getFacetedUniqueValues:
+                config.getFacetedUniqueValues ?? getFacetedUniqueValues(),
+            getFacetedMinMaxValues:
+                config.getFacetedMinMaxValues ?? getFacetedMinMaxValues(),
         });
 
         // 🔥 PROXY
@@ -194,6 +204,21 @@ export class TanStackGridEngine<T> {
 
     getTable(): Table<T> {
         return this.table;
+    }
+
+    getOptions(): TableOptions<T> {
+        return this.table.options;
+    }
+
+    updateOptions(updater: Partial<TableOptions<T>>) {
+        this.table.setOptions((prev) => ({
+            ...prev,
+            ...updater,
+            state: this.state,
+            onStateChange: prev.onStateChange,
+            data: updater.data ?? this.data,
+            columns: updater.columns ?? this.columns,
+        }));
     }
 
     // ============================================================================
@@ -427,10 +452,7 @@ export class TanStackGridEngine<T> {
     setData(data: T[]) {
         this.data = data;
 
-        this.table.setOptions((prev) => ({
-            ...prev,
-            data: this.data,
-        }));
+        this.updateOptions({data: this.data});
 
         this.table.setPageIndex(0);
         this.notify();
@@ -442,10 +464,7 @@ export class TanStackGridEngine<T> {
             id: col.id ?? (col as any).accessorKey ?? `col_${i}`,
         }));
 
-        this.table.setOptions((prev) => ({
-            ...prev,
-            columns: this.columns,
-        }));
+        this.updateOptions({columns: this.columns});
 
         this.notify();
     }

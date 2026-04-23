@@ -6,8 +6,9 @@ import type {
     ColumnDef,
     Table,
     TableState,
-    Updater,
+    TableOptions,
     RowData,
+    Updater,
     SortingState,
     VisibilityState,
     ColumnPinningState,
@@ -55,6 +56,10 @@ export interface TanStackGridEngine<TData extends RowData = unknown> {
     subscribe(listener: GridListener): () => void;
 
     getTable(): Table<TData>;
+
+    getOptions(): TableOptions<TData>;
+
+    updateOptions(updater: Partial<TableOptions<TData>>): void;
 
     // Data
     getRows(): GridRow<TData>[];
