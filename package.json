@@ -1,7 +1,7 @@
 {
-  "name": "data-grid",
-  "version": "0.0.1",
-  "description": "",
+  "name": "data-grid-engine",
+  "version": "0.1.0",
+  "description": "TanStack Table engine wrapper with TypeScript and test setup",
   "homepage": "https://github.com/malikfaizanhaider/data-grid-engine#readme",
   "bugs": {
     "url": "https://github.com/malikfaizanhaider/data-grid-engine/issues"
@@ -13,8 +13,26 @@
   "license": "ISC",
   "author": "Faizan Haider",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "dev": "tsx --watch core/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tanstack/table-core": "^8.21.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
   }
 }
