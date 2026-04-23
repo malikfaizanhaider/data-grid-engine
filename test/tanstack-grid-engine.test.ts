@@ -1,5 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import {TanStackGridEngine} from '../core';
+import {TanStackGridEngine as RootExportedTanStackGridEngine} from '../index';
 
 type Person = {
   id: number;
@@ -13,6 +14,10 @@ const columns = [
 ];
 
 describe('TanStackGridEngine project setup', () => {
+
+  it('re-exports engine from the package root entrypoint', () => {
+    expect(RootExportedTanStackGridEngine).toBe(TanStackGridEngine);
+  });
   it('creates rows and supports sorting updates', () => {
     const engine = new TanStackGridEngine<Person>({
       data: [
