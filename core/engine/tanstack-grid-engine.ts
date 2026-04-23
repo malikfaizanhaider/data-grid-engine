@@ -21,6 +21,7 @@ import {
     type Updater,
     type FilterFnOption,
     type Row,
+    type RowModel,
 
     // State types
     type VisibilityState,
@@ -32,6 +33,7 @@ import {
     type ColumnSizingState,
     type PaginationState,
     type SortingState,
+    type ColumnFiltersState,
     type FilterFn,
 } from '@tanstack/table-core';
 
@@ -237,8 +239,8 @@ export class TanStackGridEngine<T> {
     // FILTERING
     // ============================================================================
 
-    setColumnFilters(filters: GridColumnFilter[]) {
-        this.table.setColumnFilters(filters);
+    setColumnFilters(updater: Updater<ColumnFiltersState>) {
+        this.table.setColumnFilters(updater);
     }
 
     getColumnFilters(): GridColumnFilter[] {
@@ -358,8 +360,8 @@ export class TanStackGridEngine<T> {
         this.table.resetRowSelection();
     }
 
-    getSelectedRowModel(): GridRow<T>[] {
-        return this.mapRows(this.table.getSelectedRowModel().rows);
+    getSelectedRowModel(): RowModel<T> {
+        return this.table.getSelectedRowModel();
     }
 
     // ============================================================================
@@ -390,12 +392,12 @@ export class TanStackGridEngine<T> {
         return this.table.getState().pagination;
     }
 
-    setPageIndex(index: number) {
-        this.table.setPageIndex(index);
+    setPageIndex(updater: Updater<number>) {
+        this.table.setPageIndex(updater);
     }
 
-    setPageSize(size: number) {
-        this.table.setPageSize(size);
+    setPageSize(updater: Updater<number>) {
+        this.table.setPageSize(updater);
     }
 
     resetPagination() {
