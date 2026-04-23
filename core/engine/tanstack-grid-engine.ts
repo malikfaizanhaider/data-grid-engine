@@ -70,6 +70,67 @@ export class TanStackGridEngine<T> {
     private data: T[];
     private columns: ColumnDef<T, unknown>[];
 
+    private static normalizeColumns<TData>(
+        columns: ColumnDef<TData, unknown>[],
+        prefix = 'col',
+    ): ColumnDef<TData, unknown>[] {
+        return columns.map((column, index) => {
+            const col = column as ColumnDef<TData, unknown> & {
+                accessorKey?: string;
+                columns?: ColumnDef<TData, unknown>[];
+                header?: unknown;
+            };
+
+            const path = `${prefix}_${index}`;
+            const derivedId =
+                col.id ??
+                col.accessorKey ??
+                (typeof col.header === 'string' ? col.header : undefined) ??
+                path;
+
+            return {
+                ...column,
+                id: String(derivedId),
+                columns: col.columns
+                    ? TanStackGridEngine.normalizeColumns(col.columns, path)
+                    : undefined,
+            };
+        });
+    }
+
+    private static assertUniqueColumnIds<TData>(
+        columns: ColumnDef<TData, unknown>[],
+        ids = new Set<string>(),
+    ) {
+        for (const column of columns) {
+            const id = String(column.id ?? '');
+            if (ids.has(id)) {
+                throw new Error(`Duplicate column id "${id}" detected.`);
+            }
+            ids.add(id);
+
+            const childColumns = (column as ColumnDef<TData, unknown> & {
+                columns?: ColumnDef<TData, unknown>[];
+            }).columns;
+            if (childColumns?.length) {
+                TanStackGridEngine.assertUniqueColumnIds(childColumns, ids);
+            }
+        }
+    }
+
+    private static getLeafColumnIds<TData>(
+        columns: ColumnDef<TData, unknown>[],
+    ): string[] {
+        return columns.flatMap((column) => {
+            const childColumns = (column as ColumnDef<TData, unknown> & {
+                columns?: ColumnDef<TData, unknown>[];
+            }).columns;
+            return childColumns?.length
+                ? TanStackGridEngine.getLeafColumnIds(childColumns)
+                : [String(column.id)];
+        });
+    }
+
     constructor(config: EngineConfig<T>) {
         const {
             data,
@@ -80,11 +141,8 @@ export class TanStackGridEngine<T> {
         } = config;
         this.data = data;
 
-        // ✅ stable IDs
-        this.columns = columns.map((col, i) => ({
-            ...col,
-            id: col.id ?? (col as any).accessorKey ?? `col_${i}`,
-        }));
+        this.columns = TanStackGridEngine.normalizeColumns(columns);
+        TanStackGridEngine.assertUniqueColumnIds(this.columns);
 
         this.state = {
             sorting: [],
@@ -98,7 +156,7 @@ export class TanStackGridEngine<T> {
             },
 
             columnVisibility: {},
-            columnOrder: this.columns.map((c: any) => c.id),
+            columnOrder: TanStackGridEngine.getLeafColumnIds(this.columns),
 
             columnPinning: {left: [], right: []},
             rowPinning: {top: [], bottom: []},
@@ -277,7 +335,7 @@ export class TanStackGridEngine<T> {
     }
 
     setGlobalFilter(value: unknown) {
-        this.table.setGlobalFilter(value || undefined);
+        this.table.setGlobalFilter(value ?? undefined);
         this.table.setPageIndex(0);
     }
 
@@ -459,10 +517,13 @@ export class TanStackGridEngine<T> {
     }
 
     setColumns(columns: ColumnDef<T, unknown>[]) {
-        this.columns = columns.map((col, i) => ({
-            ...col,
-            id: col.id ?? (col as any).accessorKey ?? `col_${i}`,
-        }));
+        this.columns = TanStackGridEngine.normalizeColumns(columns);
+        TanStackGridEngine.assertUniqueColumnIds(this.columns);
+
+        this.state = {
+            ...this.state,
+            columnOrder: TanStackGridEngine.getLeafColumnIds(this.columns),
+        };
 
         this.updateOptions({columns: this.columns});
 

@@ -73,4 +73,47 @@ describe('TanStackGridEngine project setup', () => {
     engine.setSorting([{id: 'age', desc: true}]);
     expect(engine.getState().sorting).toEqual([{id: 'age', desc: true}]);
   });
+
+  it('preserves valid falsey global filter values', () => {
+    const engine = new TanStackGridEngine<Person>({
+      data: [{id: 1, name: 'Amy', age: 0}],
+      columns,
+    });
+
+    engine.setGlobalFilter(0);
+    expect(engine.getGlobalFilter()).toBe(0);
+  });
+
+  it('normalizes nested column IDs and updates column order on setColumns', () => {
+    const engine = new TanStackGridEngine<Person>({
+      data: [{id: 1, name: 'Amy', age: 33}],
+      columns,
+    });
+
+    engine.setColumns([
+      {
+        header: 'Person',
+        columns: [
+          {header: 'Display Name', accessorKey: 'name'},
+          {header: 'Years', accessorKey: 'age'},
+        ],
+      },
+    ]);
+
+    expect(engine.getAllLeafColumns().map((col) => col.id)).toEqual(['name', 'age']);
+    expect(engine.getColumnOrder()).toEqual(['name', 'age']);
+  });
+
+  it('throws when duplicate column IDs are configured', () => {
+    expect(
+      () =>
+        new TanStackGridEngine<Person>({
+          data: [{id: 1, name: 'Amy', age: 33}],
+          columns: [
+            {id: 'dup', accessorKey: 'name', header: 'Name'},
+            {id: 'dup', accessorKey: 'age', header: 'Age'},
+          ],
+        }),
+    ).toThrow('Duplicate column id "dup" detected.');
+  });
 });
