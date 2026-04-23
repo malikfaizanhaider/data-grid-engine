@@ -20,7 +20,7 @@ import {
     type TableOptions,
     type ColumnDef,
     type Updater,
-    type FilterFnOption, type Row, type RowModel,
+    type FilterFnOption, type Row, type RowModel, type RowData,
 
     // State types
     type VisibilityState,
@@ -46,7 +46,7 @@ import type {
 // Config
 // ============================================================================
 
-type EngineConfig<T> = {
+type EngineConfig<T extends RowData> = {
     data: T[];
     columns: ColumnDef<T, unknown>[];
 } & Omit<
@@ -61,7 +61,7 @@ type EngineConfig<T> = {
 // Engine
 // ============================================================================
 
-export class TanStackGridEngine<T> {
+export class TanStackGridEngine<T extends RowData> {
     private readonly table: Table<T>;
     private readonly listeners = new Set<GridListener>();
     private notifyScheduled = false;
@@ -269,14 +269,30 @@ export class TanStackGridEngine<T> {
     }
 
     updateOptions(updater: Partial<TableOptions<T>>) {
+        if (updater.data) {
+            this.data = updater.data;
+        }
+
+        if (updater.columns) {
+            this.columns = TanStackGridEngine.normalizeColumns(updater.columns);
+            TanStackGridEngine.assertUniqueColumnIds(this.columns);
+
+            this.state = {
+                ...this.state,
+                columnOrder: TanStackGridEngine.getLeafColumnIds(this.columns),
+            };
+        }
+
         this.table.setOptions((prev) => ({
             ...prev,
             ...updater,
             state: this.state,
             onStateChange: prev.onStateChange,
-            data: updater.data ?? this.data,
-            columns: updater.columns ?? this.columns,
+            data: this.data,
+            columns: this.columns,
         }));
+
+        this.notify();
     }
 
     // ============================================================================
@@ -508,29 +524,15 @@ export class TanStackGridEngine<T> {
     // ============================================================================
 
     setData(data: T[]) {
-        this.data = data;
-
-        this.updateOptions({data: this.data});
-
+        this.updateOptions({data});
         this.table.setPageIndex(0);
-        this.notify();
     }
 
     setColumns(columns: ColumnDef<T, unknown>[]) {
-        this.columns = TanStackGridEngine.normalizeColumns(columns);
-        TanStackGridEngine.assertUniqueColumnIds(this.columns);
-
-        this.state = {
-            ...this.state,
-            columnOrder: TanStackGridEngine.getLeafColumnIds(this.columns),
-        };
-
-        this.updateOptions({columns: this.columns});
-
-        this.notify();
+        this.updateOptions({columns});
     }
 }
 
 // Type-level merge so engine instances expose full TanStack Table APIs.
 // Runtime forwarding is handled by the constructor Proxy above.
-export interface TanStackGridEngine<T> extends Table<T> {}
+export interface TanStackGridEngine<T extends RowData> extends Table<T> {}
