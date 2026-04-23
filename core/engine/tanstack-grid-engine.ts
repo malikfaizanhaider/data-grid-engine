@@ -410,8 +410,8 @@ export class TanStackGridEngine<T> {
         return this.table.getState().columnOrder;
     }
 
-    setColumnOrder(order: string[]) {
-        this.table.setColumnOrder(order);
+    setColumnOrder(updater: Updater<string[]>) {
+        this.table.setColumnOrder(updater);
     }
 
     resetColumnOrder() {
