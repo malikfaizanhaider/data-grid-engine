@@ -17,6 +17,8 @@ import type {
     RowSelectionState,
     ColumnSizingState,
     PaginationState,
+    ColumnFiltersState,
+    RowModel,
 } from '@tanstack/table-core';
 
 // ----------------------------------------------------------------------------
@@ -69,7 +71,7 @@ export interface TanStackGridEngine<TData extends RowData = unknown> {
     resetSorting(): void;
 
     // Filtering
-    setColumnFilters(filters: GridColumnFilter[]): void;
+    setColumnFilters(updater: GridUpdater<ColumnFiltersState>): void;
 
     getColumnFilters(): GridColumnFilter[];
 
@@ -124,7 +126,7 @@ export interface TanStackGridEngine<TData extends RowData = unknown> {
 
     resetRowSelection(): void;
 
-    getSelectedRowModel(): GridRow<TData>[];
+    getSelectedRowModel(): RowModel<TData>;
 
     // Sizing
     setColumnSizing(updater: GridUpdater<ColumnSizingState>): void;
@@ -138,16 +140,16 @@ export interface TanStackGridEngine<TData extends RowData = unknown> {
 
     getPagination(): PaginationState;
 
-    setPageIndex(index: number): void;
+    setPageIndex(updater: GridUpdater<number>): void;
 
-    setPageSize(size: number): void;
+    setPageSize(updater: GridUpdater<number>): void;
 
     resetPagination(): void;
 
     // Column Order
     getColumnOrder(): string[];
 
-    setColumnOrder(order: string[]): void;
+    setColumnOrder(updater: GridUpdater<string[]>): void;
 
     resetColumnOrder(): void;
 }
