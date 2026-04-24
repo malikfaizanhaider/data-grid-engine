@@ -156,4 +156,29 @@ describe('TanStackGridEngine project setup', () => {
         }),
     ).toThrow('Duplicate column id "dup" detected.');
   });
+
+  it('drops stale column-driven state when columns are replaced', () => {
+    const engine = new TanStackGridEngine<Person>({
+      data: [{id: 1, name: 'Amy', age: 33}],
+      columns,
+    });
+
+    engine.setSorting([{id: 'age', desc: true}]);
+    engine.setColumnFilters([{id: 'age', value: 33}]);
+    engine.setGrouping(['age']);
+    engine.setColumnVisibility({age: false, name: true});
+    engine.setColumnSizing({age: 150, name: 200});
+    engine.setColumnPinning({left: ['age'], right: ['name']});
+    engine.setColumnOrder(['age', 'name']);
+
+    engine.setColumns([{accessorKey: 'name', header: 'Name'}]);
+
+    expect(engine.getSorting()).toEqual([]);
+    expect(engine.getColumnFilters()).toEqual([]);
+    expect(engine.getGrouping()).toEqual([]);
+    expect(engine.getColumnVisibility()).toEqual({name: true});
+    expect(engine.getColumnSizing()).toEqual({name: 200});
+    expect(engine.getColumnPinning()).toEqual({left: [], right: ['name']});
+    expect(engine.getColumnOrder()).toEqual(['name']);
+  });
 });
