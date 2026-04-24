@@ -131,6 +131,51 @@ export class TanStackGridEngine<T extends RowData> {
         });
     }
 
+    private static reconcileColumnDrivenState(
+        state: TableState,
+        leafColumnIds: string[],
+    ): TableState {
+        const validIds = new Set(leafColumnIds);
+
+        const sanitizeColumnOrder = (currentOrder: string[]): string[] => {
+            const nextOrder = currentOrder.filter((id) => validIds.has(id));
+            for (const id of leafColumnIds) {
+                if (!nextOrder.includes(id)) {
+                    nextOrder.push(id);
+                }
+            }
+            return nextOrder;
+        };
+
+        return {
+            ...state,
+            sorting: state.sorting.filter((sort) => validIds.has(sort.id)),
+            columnFilters: state.columnFilters.filter((filter) =>
+                validIds.has(filter.id),
+            ),
+            grouping: state.grouping.filter((id) => validIds.has(id)),
+            columnVisibility: Object.fromEntries(
+                Object.entries(state.columnVisibility).filter(([id]) =>
+                    validIds.has(id),
+                ),
+            ),
+            columnSizing: Object.fromEntries(
+                Object.entries(state.columnSizing).filter(([id]) =>
+                    validIds.has(id),
+                ),
+            ),
+            columnPinning: {
+                left: (state.columnPinning.left ?? []).filter((id) =>
+                    validIds.has(id),
+                ),
+                right: (state.columnPinning.right ?? []).filter((id) =>
+                    validIds.has(id),
+                ),
+            },
+            columnOrder: sanitizeColumnOrder(state.columnOrder),
+        };
+    }
+
     constructor(config: EngineConfig<T>) {
         const {
             data,
@@ -282,10 +327,15 @@ export class TanStackGridEngine<T extends RowData> {
         this.columns = nextColumns;
 
         if (updater.columns) {
+            const nextLeafColumnIds = TanStackGridEngine.getLeafColumnIds(nextColumns);
             this.state = {
                 ...this.state,
-                columnOrder: TanStackGridEngine.getLeafColumnIds(nextColumns),
+                columnOrder: nextLeafColumnIds,
             };
+            this.state = TanStackGridEngine.reconcileColumnDrivenState(
+                this.state,
+                nextLeafColumnIds,
+            );
         }
 
         this.table.setOptions((prev) => ({
