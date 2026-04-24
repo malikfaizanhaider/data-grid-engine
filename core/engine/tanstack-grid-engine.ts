@@ -269,17 +269,22 @@ export class TanStackGridEngine<T extends RowData> {
     }
 
     updateOptions(updater: Partial<TableOptions<T>>) {
-        if (updater.data) {
-            this.data = updater.data;
-        }
+        const nextData = updater.data ?? this.data;
+        const nextColumns = updater.columns
+            ? TanStackGridEngine.normalizeColumns(updater.columns)
+            : this.columns;
 
         if (updater.columns) {
-            this.columns = TanStackGridEngine.normalizeColumns(updater.columns);
-            TanStackGridEngine.assertUniqueColumnIds(this.columns);
+            TanStackGridEngine.assertUniqueColumnIds(nextColumns);
+        }
 
+        this.data = nextData;
+        this.columns = nextColumns;
+
+        if (updater.columns) {
             this.state = {
                 ...this.state,
-                columnOrder: TanStackGridEngine.getLeafColumnIds(this.columns),
+                columnOrder: TanStackGridEngine.getLeafColumnIds(nextColumns),
             };
         }
 
