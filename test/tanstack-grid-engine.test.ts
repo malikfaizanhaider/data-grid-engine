@@ -108,6 +108,10 @@ describe('TanStackGridEngine project setup', () => {
         ],
       }),
     ).toThrow('Duplicate column id "dup" detected.');
+
+    engine.updateOptions({pageCount: 2});
+    expect(engine.getPageCount()).toBe(2);
+    expect(engine.getAllLeafColumns().map((col) => col.id)).toEqual(['name', 'age']);
   });
 
   it('preserves valid falsey global filter values', () => {
