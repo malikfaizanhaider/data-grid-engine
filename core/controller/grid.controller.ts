@@ -16,6 +16,7 @@ import type {TanStackGridEngine} from "../engine/tanstack-grid-engine";
 
 export class GridController<T extends object> {
     private readonly listeners = new Set<() => void>()
+    private unsubscribeFromEngine: (() => void) | null = null
     private version = 0
 
     // memoization
@@ -35,19 +36,29 @@ export class GridController<T extends object> {
     subscribe(listener: () => void): () => void {
         this.listeners.add(listener)
 
-        const unsub = this.engine.subscribe(() => {
-            this.version++
-            this.notify()
-        })
+        if (!this.unsubscribeFromEngine) {
+            this.unsubscribeFromEngine = this.engine.subscribe(() => {
+                this.invalidateRowsCache()
+                this.notify()
+            })
+        }
 
         return () => {
             this.listeners.delete(listener)
-            unsub()
+
+            if (!this.listeners.size && this.unsubscribeFromEngine) {
+                this.unsubscribeFromEngine()
+                this.unsubscribeFromEngine = null
+            }
         }
     }
 
     private notify() {
         this.listeners.forEach((l) => l())
+    }
+
+    private invalidateRowsCache() {
+        this.version++
     }
 
     // =============================================
@@ -128,42 +139,52 @@ export class GridController<T extends object> {
 
     setSorting(updater: Updater<SortingState>) {
         this.engine.setSorting(updater)
+        this.invalidateRowsCache()
     }
 
     resetSorting() {
         this.engine.resetSorting()
+        this.invalidateRowsCache()
     }
 
     setFilters(updater: Updater<ColumnFiltersState>) {
         this.engine.setColumnFilters(updater)
+        this.invalidateRowsCache()
     }
 
     resetFilters() {
         this.engine.resetColumnFilters()
+        this.invalidateRowsCache()
     }
 
     setGlobalFilter(value: unknown) {
         this.engine.setGlobalFilter(value)
+        this.invalidateRowsCache()
     }
 
     resetGlobalFilter() {
         this.engine.resetGlobalFilter()
+        this.invalidateRowsCache()
     }
 
     setPagination(updater: Updater<PaginationState>) {
         this.engine.setPagination(updater)
+        this.invalidateRowsCache()
     }
 
     setPageIndex(updater: Updater<number>) {
         this.engine.setPageIndex(updater)
+        this.invalidateRowsCache()
     }
 
     setPageSize(updater: Updater<number>) {
         this.engine.setPageSize(updater)
+        this.invalidateRowsCache()
     }
 
     resetPagination() {
         this.engine.resetPagination()
+        this.invalidateRowsCache()
     }
 
     // =============================================
@@ -172,14 +193,17 @@ export class GridController<T extends object> {
 
     setColumnVisibility(updater: any) {
         this.engine.setColumnVisibility(updater)
+        this.invalidateRowsCache()
     }
 
     setColumnOrder(updater: Updater<string[]>) {
         this.engine.setColumnOrder(updater)
+        this.invalidateRowsCache()
     }
 
     resetColumnOrder() {
         this.engine.resetColumnOrder()
+        this.invalidateRowsCache()
     }
 
     // =============================================
@@ -188,6 +212,7 @@ export class GridController<T extends object> {
 
     setRowSelection(updater: any) {
         this.engine.setRowSelection(updater)
+        this.invalidateRowsCache()
     }
 
     getSelectedRows() {
@@ -196,6 +221,7 @@ export class GridController<T extends object> {
 
     resetRowSelection() {
         this.engine.resetRowSelection()
+        this.invalidateRowsCache()
     }
 
     // =============================================
@@ -233,5 +259,6 @@ export class GridController<T extends object> {
         this.engine.updateOptions({
             data: result.data,
         })
+        this.invalidateRowsCache()
     }
 }
