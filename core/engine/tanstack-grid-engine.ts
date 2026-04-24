@@ -211,13 +211,24 @@ export class TanStackGridEngine<T> {
     }
 
     updateOptions(updater: Partial<TableOptions<T>>) {
+        if (updater.data !== undefined) {
+            this.data = updater.data;
+        }
+
+        if (updater.columns !== undefined) {
+            this.columns = updater.columns.map((col, i) => ({
+                ...col,
+                id: col.id ?? (col as any).accessorKey ?? `col_${i}`,
+            }));
+        }
+
         this.table.setOptions((prev) => ({
             ...prev,
             ...updater,
             state: this.state,
             onStateChange: prev.onStateChange,
-            data: updater.data ?? this.data,
-            columns: updater.columns ?? this.columns,
+            data: this.data,
+            columns: this.columns,
         }));
     }
 

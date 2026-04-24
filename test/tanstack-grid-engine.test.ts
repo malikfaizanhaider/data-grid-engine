@@ -73,4 +73,23 @@ describe('TanStackGridEngine project setup', () => {
     engine.setSorting([{id: 'age', desc: true}]);
     expect(engine.getState().sorting).toEqual([{id: 'age', desc: true}]);
   });
+
+  it('persists updated data and columns across unrelated option updates', () => {
+    const engine = new TanStackGridEngine<Person>({
+      data: [{id: 1, name: 'Amy', age: 33}],
+      columns,
+    });
+
+    engine.updateOptions({
+      data: [{id: 2, name: 'Ben', age: 27}],
+      columns: [{accessorKey: 'name', header: 'Name only'}],
+    });
+
+    engine.updateOptions({pageCount: 1});
+
+    expect(engine.getOptions().data).toEqual([{id: 2, name: 'Ben', age: 27}]);
+    expect(engine.getAllLeafColumns().map((col) => col.id)).toEqual(['name']);
+    expect(engine.getRows()).toHaveLength(1);
+    expect(engine.getRows()[0]?.original.name).toBe('Ben');
+  });
 });
