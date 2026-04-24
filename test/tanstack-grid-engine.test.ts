@@ -74,6 +74,20 @@ describe('TanStackGridEngine project setup', () => {
     expect(engine.getState().sorting).toEqual([{id: 'age', desc: true}]);
   });
 
+
+
+  it('retains setData updates after later option patches', () => {
+    const engine = new TanStackGridEngine<Person>({
+      data: [{id: 1, name: 'Amy', age: 33}],
+      columns,
+    });
+
+    engine.setData([{id: 3, name: 'Cara', age: 29}]);
+    engine.updateOptions({pageCount: 2});
+
+    expect(engine.getOptions().data).toEqual([{id: 3, name: 'Cara', age: 29}]);
+    expect(engine.getRows()[0]?.original.name).toBe('Cara');
+  });
   it('persists updated data and columns across unrelated option updates', () => {
     const engine = new TanStackGridEngine<Person>({
       data: [{id: 1, name: 'Amy', age: 33}],

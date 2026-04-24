@@ -461,21 +461,14 @@ export class TanStackGridEngine<T> {
     // ============================================================================
 
     setData(data: T[]) {
-        this.data = data;
-
-        this.updateOptions({data: this.data});
+        this.updateOptions({data});
 
         this.table.setPageIndex(0);
         this.notify();
     }
 
     setColumns(columns: ColumnDef<T, unknown>[]) {
-        this.columns = columns.map((col, i) => ({
-            ...col,
-            id: col.id ?? (col as any).accessorKey ?? `col_${i}`,
-        }));
-
-        this.updateOptions({columns: this.columns});
+        this.updateOptions({columns});
 
         this.notify();
     }
