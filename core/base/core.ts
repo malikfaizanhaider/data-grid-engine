@@ -43,13 +43,8 @@ import {
 } from './faceting';
 
 import {
-    GridPersistenceManager,
     type GridPersistenceOptions,
 } from './persistence';
-
-import {
-    GridPluginManager,
-} from './plugins';
 
 // ============================================================================
 // TYPES
@@ -103,11 +98,11 @@ export interface GridCoreDiagnostics<TData extends RowData> {
     >;
 
     readonly persistence: ReturnType<
-        GridPersistenceManager<TData>['diagnostics']
+        TanStackGridEngine<TData>['persistenceDiagnostics']
     >;
 
     readonly plugins: ReturnType<
-        GridPluginManager<TData>['diagnostics']
+        TanStackGridEngine<TData>['pluginDiagnostics']
     >;
 
     readonly server?: ReturnType<
@@ -132,10 +127,6 @@ export class GridCore<TData extends RowData> {
     private readonly mutations: GridMutationManager<TData>;
 
     private readonly faceting: GridFacetingManager<TData>;
-
-    private readonly persistence: GridPersistenceManager<TData>;
-
-    private readonly plugins: GridPluginManager<TData>;
 
     private readonly server?: GridServerManager<TData>;
 
@@ -182,6 +173,20 @@ export class GridCore<TData extends RowData> {
                 },
             );
 
+        if (
+            options.plugins
+                ?.length
+        ) {
+            for (
+                const plugin
+                    of options.plugins
+            ) {
+                this.engine.registerPlugin(
+                    plugin,
+                );
+            }
+        }
+
         // =========================================================================
         // RENDERING
         // =========================================================================
@@ -218,38 +223,6 @@ export class GridCore<TData extends RowData> {
                 },
             );
 
-        // =========================================================================
-        // PERSISTENCE
-        // =========================================================================
-
-        this.persistence =
-            new GridPersistenceManager<TData>(
-                this.engine,
-                options.persistence,
-            );
-
-        // =========================================================================
-        // PLUGINS
-        // =========================================================================
-
-        this.plugins =
-            new GridPluginManager<TData>(
-                this.engine,
-                {
-                    strict:
-                        options.strict ??
-                        true,
-                },
-            );
-
-        if (
-            options.plugins
-                ?.length
-        ) {
-            this.plugins.registerMany(
-                options.plugins,
-            );
-        }
 
         // =========================================================================
         // OPTIONAL SERVER
@@ -719,21 +692,21 @@ export class GridCore<TData extends RowData> {
 
     exportSnapshot():
         ReturnType<
-            GridPersistenceManager<TData>['exportState']
+            TanStackGridEngine<TData>['exportState']
         > {
         this.assertActive();
 
-        return this.persistence.exportState();
+        return this.engine.exportState();
     }
 
     importSnapshot(
         snapshot: Parameters<
-            GridPersistenceManager<TData>['importState']
+            TanStackGridEngine<TData>['importState']
         >[0],
     ): void {
         this.assertActive();
 
-        this.persistence.importState(
+        this.engine.importState(
             snapshot,
         );
     }
@@ -747,7 +720,7 @@ export class GridCore<TData extends RowData> {
     ): void {
         this.assertActive();
 
-        this.plugins.register(
+        this.engine.registerPlugin(
             plugin,
         );
     }
@@ -757,7 +730,7 @@ export class GridCore<TData extends RowData> {
     ): void {
         this.assertActive();
 
-        this.plugins.unregister(
+        this.engine.unregisterPlugin(
             name,
         );
     }
@@ -784,10 +757,10 @@ export class GridCore<TData extends RowData> {
                     this.faceting.diagnostics(),
 
                 persistence:
-                    this.persistence.diagnostics(),
+                    this.engine.persistenceDiagnostics(),
 
                 plugins:
-                    this.plugins.diagnostics(),
+                    this.engine.pluginDiagnostics(),
 
                 server:
                     this.server
@@ -808,16 +781,6 @@ export class GridCore<TData extends RowData> {
         }
 
         this.faceting.destroy();
-
-        if (
-            this.isDestroyable(
-                this.persistence,
-            )
-        ) {
-            this.persistence.destroy();
-        }
-
-        this.plugins.destroy();
 
         this.server?.cancel();
 
