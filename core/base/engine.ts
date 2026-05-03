@@ -427,32 +427,38 @@ export class TanStackGridEngine<TData extends RowData>
     ): void {
         this.assertNotDestroyed();
 
+        const nextRows =
+            updater.data
+                ? this.freezeArray(
+                    updater.data,
+                )
+                : undefined;
+
+        const nextColumns =
+            updater.columns
+                ? this.freezeArray(
+                    this.validateColumns(
+                        updater.columns,
+                    ),
+                )
+                : undefined;
+
         const sanitizedUpdater =
             this.sanitizeOptionsOverride(
                 updater,
             );
 
-        if (
-            updater.data
-        ) {
+        if ( nextRows ) {
             this.rows =
-                this.freezeArray(
-                    updater.data,
-                );
+                nextRows;
 
             this.recordCount =
-                updater.data.length;
+                nextRows.length;
         }
 
-        if (
-            updater.columns
-        ) {
+        if ( nextColumns ) {
             this.columns =
-                this.freezeArray(
-                    this.validateColumns(
-                        updater.columns,
-                    ),
-                );
+                nextColumns;
         }
 
         this.syncTable(
