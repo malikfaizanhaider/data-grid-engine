@@ -175,6 +175,122 @@ export class TanStackGridEngine<TData extends RowData>
         );
     }
 
+    private sanitizeOptionsOverride(
+        override: Partial<TableOptions<TData>>,
+    ): Partial<TableOptions<TData>> {
+        const sanitized = {
+            ...override,
+        };
+
+        delete sanitized.data;
+        delete sanitized.columns;
+        delete sanitized.state;
+        delete sanitized.onStateChange;
+
+        return sanitized;
+    }
+
+    private validateColumns(
+        columns: readonly ColumnDef<TData, unknown>[],
+    ): readonly ColumnDef<TData, unknown>[] {
+        const seenIds = new Set<string>();
+
+        const validateList = (
+            defs: readonly ColumnDef<TData, unknown>[],
+            path: string,
+        ): void => {
+            defs.forEach(
+                (
+                    column,
+                    index,
+                ) => {
+                    const columnPath = `${path}[${index}]`;
+                    const nestedColumns =
+                        'columns' in column &&
+                        Array.isArray(
+                            column.columns,
+                        )
+                            ? (
+                                column.columns as readonly ColumnDef<TData, unknown>[]
+                            )
+                            : undefined;
+
+                    const columnId =
+                        typeof column.id ===
+                        'string' &&
+                        column.id.length > 0
+                            ? column.id
+                            : 'accessorKey' in
+                                      column &&
+                                  typeof column.accessorKey ===
+                                      'string' &&
+                                  column.accessorKey.length > 0
+                              ? column.accessorKey
+                              : undefined;
+
+                    const hasAccessorFn =
+                        'accessorFn' in
+                            column &&
+                        typeof column.accessorFn ===
+                            'function';
+
+                    if (
+                        nestedColumns &&
+                        hasAccessorFn
+                    ) {
+                        throw new Error(
+                            `Column ${columnPath} cannot define both accessorFn and nested columns.`,
+                        );
+                    }
+
+                    if (
+                        !nestedColumns &&
+                        hasAccessorFn &&
+                        !columnId
+                    ) {
+                        throw new Error(
+                            `Column ${columnPath} with accessorFn requires a stable id.`,
+                        );
+                    }
+
+                    if (
+                        columnId
+                    ) {
+                        if (
+                            seenIds.has(
+                                columnId,
+                            )
+                        ) {
+                            throw new Error(
+                                `Duplicate column id detected: "${columnId}".`,
+                            );
+                        }
+
+                        seenIds.add(
+                            columnId,
+                        );
+                    }
+
+                    if (
+                        nestedColumns
+                    ) {
+                        validateList(
+                            nestedColumns,
+                            `${columnPath}.columns`,
+                        );
+                    }
+                },
+            );
+        };
+
+        validateList(
+            columns,
+            'columns',
+        );
+
+        return columns;
+    }
+
     private emitStateChange(
         previous: TableState,
     ): void {
@@ -233,6 +349,22 @@ export class TanStackGridEngine<TData extends RowData>
                 this.recordCount,
                 rows: this.rows,
             },
+        );
+    }
+
+    private applyTableStateMutation(
+        mutate: () => void,
+    ): void {
+        const previous =
+            this.state;
+
+        mutate();
+
+        this.state =
+            this.table.getState();
+
+        this.emitStateChange(
+            previous,
         );
     }
 
@@ -295,6 +427,11 @@ export class TanStackGridEngine<TData extends RowData>
     ): void {
         this.assertNotDestroyed();
 
+        const sanitizedUpdater =
+            this.sanitizeOptionsOverride(
+                updater,
+            );
+
         if (
             updater.data
         ) {
@@ -312,13 +449,16 @@ export class TanStackGridEngine<TData extends RowData>
         ) {
             this.columns =
                 this.freezeArray(
-                    updater.columns,
+                    this.validateColumns(
+                        updater.columns,
+                    ),
                 );
         }
 
         this.syncTable(
             {
-                override: updater,
+                override:
+                    sanitizedUpdater,
             },
         );
     }
@@ -340,7 +480,9 @@ export class TanStackGridEngine<TData extends RowData>
 
         this.columns =
             this.freezeArray(
-                columns,
+                this.validateColumns(
+                    columns,
+                ),
             );
 
         this.syncTable();
@@ -377,92 +519,144 @@ export class TanStackGridEngine<TData extends RowData>
     setSorting = (
         updater: Updater<any>,
     ) =>
-        this.table.setSorting(
-            updater,
+        this.applyTableStateMutation(
+            () => {
+                this.table.setSorting(
+                    updater,
+                );
+            },
         );
 
     setColumnFilters = (
         updater: Updater<any>,
     ) =>
-        this.table.setColumnFilters(
-            updater,
+        this.applyTableStateMutation(
+            () => {
+                this.table.setColumnFilters(
+                    updater,
+                );
+            },
         );
 
     setGlobalFilter = (
         value: unknown,
     ) =>
-        this.table.setGlobalFilter(
-            value,
+        this.applyTableStateMutation(
+            () => {
+                this.table.setGlobalFilter(
+                    value,
+                );
+            },
         );
 
     setPagination = (
         updater: Updater<any>,
     ) =>
-        this.table.setPagination(
-            updater,
+        this.applyTableStateMutation(
+            () => {
+                this.table.setPagination(
+                    updater,
+                );
+            },
         );
 
     setPageIndex = (
         updater: Updater<number>,
     ) =>
-        this.table.setPageIndex(
-            updater,
+        this.applyTableStateMutation(
+            () => {
+                this.table.setPageIndex(
+                    updater,
+                );
+            },
         );
 
     setPageSize = (
         updater: Updater<number>,
     ) =>
-        this.table.setPageSize(
-            updater,
+        this.applyTableStateMutation(
+            () => {
+                this.table.setPageSize(
+                    updater,
+                );
+            },
         );
 
     setRowSelection = (
         updater: Updater<any>,
     ) =>
-        this.table.setRowSelection(
-            updater,
+        this.applyTableStateMutation(
+            () => {
+                this.table.setRowSelection(
+                    updater,
+                );
+            },
         );
 
     setColumnVisibility = (
         updater: Updater<any>,
     ) =>
-        this.table.setColumnVisibility(
-            updater,
+        this.applyTableStateMutation(
+            () => {
+                this.table.setColumnVisibility(
+                    updater,
+                );
+            },
         );
 
     setColumnPinning = (
         updater: Updater<any>,
     ) =>
-        this.table.setColumnPinning(
-            updater,
+        this.applyTableStateMutation(
+            () => {
+                this.table.setColumnPinning(
+                    updater,
+                );
+            },
         );
 
     setRowPinning = (
         updater: Updater<any>,
     ) =>
-        this.table.setRowPinning(
-            updater,
+        this.applyTableStateMutation(
+            () => {
+                this.table.setRowPinning(
+                    updater,
+                );
+            },
         );
 
     setGrouping = (
         updater: Updater<any>,
     ) =>
-        this.table.setGrouping(
-            updater,
+        this.applyTableStateMutation(
+            () => {
+                this.table.setGrouping(
+                    updater,
+                );
+            },
         );
 
     setExpanded = (
         updater: Updater<any>,
     ) =>
-        this.table.setExpanded(
-            updater,
+        this.applyTableStateMutation(
+            () => {
+                this.table.setExpanded(
+                    updater,
+                );
+            },
         );
 
     setColumnOrder = (
         updater: Updater<string[]>,
     ) =>
-        this.table.setColumnOrder(
-            updater,
+        this.applyTableStateMutation(
+            () => {
+                this.table.setColumnOrder(
+                    updater,
+                );
+            },
         );
 
     // =========================================================================
