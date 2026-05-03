@@ -1,17 +1,18 @@
 {
-  "name": "@tanstack/data-grid-engine",
-  "version": "8.21.4",
-  "description": "TanStack Table engine wrapper with TypeScript and test setup",
-  "homepage": "https://github.com/malikfaizanhaider/data-grid-engine#readme",
+  "name": "@engine/data-grid",
+  "version": "8.21.3",
+  "description": "Headless, framework-agnostic data grid engine for TanStack Table",
+  "homepage": "https://tanstack.com/table",
   "bugs": {
-    "url": "https://github.com/malikfaizanhaider/data-grid-engine/issues"
+    "url": "https://github.com/TanStack/table/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/malikfaizanhaider/data-grid-engine.git"
+    "url": "git+https://github.com/TanStack/table.git",
+    "directory": "packages/data-grid-engine"
   },
-  "license": "ISC",
-  "author": "i2c Inc",
+  "license": "MIT",
+  "author": "TanStack",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

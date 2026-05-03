@@ -1,26 +1,49 @@
-# @i2c/data-grid-engine
+# @engine/data-grid
 
-TypeScript-ready TanStack Table engine wrapper with full ESM, CommonJS, and UMD support.
+Headless, framework-agnostic data grid engine built on top of [TanStack Table](https://tanstack.com/table). Provides a powerful abstraction layer with built-in state management, event system, and enterprise features.
+
+## Features
+
+- **Framework Agnostic** - Works with React, Vue, Angular, Solid, or vanilla JS
+- **Headless** - Full control over markup and styling
+- **TypeScript First** - Complete type safety and IntelliSense
+- **Tree-shakable** - Import only what you need
+- **Server-Side Ready** - Built-in support for server-side operations
+- **Plugin System** - Extensible architecture
+- **Event-Driven** - Comprehensive event system for state changes
 
 ## Installation
 
 ```bash
-npm install @i2c/data-grid-engine @tanstack/table-core
+npm install @engine/data-grid @tanstack/table-core
 ```
 
-> **Note:** `@tanstack/table-core` is a peer dependency. You must install it alongside this package.
+```bash
+yarn add @engine/data-grid @tanstack/table-core
+```
 
-## Usage
+```bash
+pnpm add @engine/data-grid @tanstack/table-core
+```
 
-### ES Modules (recommended)
+## Quick Start
 
 ```ts
-import { TanStackGridEngine } from '@i2c/data-grid-engine';
+import { TanStackGridEngine } from '@engine/data-grid';
 
-const engine = new TanStackGridEngine({
+// Define your data type
+interface Person {
+  id: number;
+  name: string;
+  age: number;
+}
+
+// Create the engine
+const engine = new TanStackGridEngine<Person>({
   data: [
     { id: 1, name: 'Amy', age: 33 },
     { id: 2, name: 'Ben', age: 27 },
+    { id: 3, name: 'Charlie', age: 45 },
   ],
   columns: [
     { accessorKey: 'name', header: 'Name' },
@@ -28,132 +51,171 @@ const engine = new TanStackGridEngine({
   ],
 });
 
+// Use the engine
 engine.setSorting([{ id: 'age', desc: false }]);
-console.log(engine.getRows());
+const rows = engine.getRows();
 ```
 
-### Tree-shakable imports
+## Imports
 
-For optimal bundle size, import only what you need:
+### Main Entry
 
 ```ts
-// Import specific modules for better tree-shaking
-import { TanStackGridEngine } from '@i2c/data-grid-engine/core/base/engine';
-import { GridEventBus } from '@i2c/data-grid-engine/core/base/events';
-import { GridFeatureManager } from '@i2c/data-grid-engine/core/base/features';
-import { GridMutationManager } from '@i2c/data-grid-engine/core/base/mutations';
+// Everything from one import
+import { 
+  TanStackGridEngine,
+  GridEventBus,
+  GridFeatureManager,
+  // ... all exports
+} from '@engine/data-grid';
 ```
 
-### CommonJS
+### Tree-shakable Imports
 
-```js
-const { TanStackGridEngine } = require('@i2c/data-grid-engine');
+```ts
+// Import specific modules for optimal bundle size
+import { TanStackGridEngine } from '@engine/data-grid/core/base/engine';
+import { GridEventBus } from '@engine/data-grid/core/base/events';
+import { GridFeatureManager } from '@engine/data-grid/core/base/features';
+import { GridMutationManager } from '@engine/data-grid/core/base/mutations';
+import { GridPersistenceManager } from '@engine/data-grid/core/base/persistence';
+import { GridPluginManager } from '@engine/data-grid/core/base/plugins';
+```
 
-const engine = new TanStackGridEngine({
-  data: [...],
-  columns: [...],
+### Type Imports
+
+```ts
+import type { GridCore } from '@engine/data-grid/core/base/core';
+import type { GridFeatureConfig } from '@engine/data-grid/core/base/types';
+import type { 
+  GridRenderableRow,
+  GridRenderableHeader,
+  GridRenderableCell,
+} from '@engine/data-grid/core/base/rendering';
+```
+
+## API Reference
+
+### TanStackGridEngine
+
+The main engine class that wraps TanStack Table with additional functionality.
+
+```ts
+const engine = new TanStackGridEngine<TData>({
+  data: TData[],
+  columns: ColumnDef<TData>[],
+  // ... TanStack Table options
 });
 ```
 
-### Browser (CDN)
+#### Methods
+
+| Method | Description |
+|--------|-------------|
+| `getRows()` | Get all processed rows |
+| `getRowModel()` | Get the current row model |
+| `getAllColumns()` | Get all column definitions |
+| `getVisibleLeafColumns()` | Get visible leaf columns |
+| `getState()` | Get current table state |
+| `setState(updater)` | Update table state |
+| `setSorting(sorting)` | Set sorting state |
+| `setFiltering(filters)` | Set column filters |
+| `setPagination(pagination)` | Set pagination state |
+| `on(event, handler)` | Subscribe to events |
+| `off(event, handler)` | Unsubscribe from events |
+| `destroy()` | Clean up resources |
+
+### Events
+
+```ts
+// Subscribe to state changes
+engine.on('stateChange', (state) => {
+  console.log('State changed:', state);
+});
+
+// Subscribe to sorting changes
+engine.on('sortingChange', (sorting) => {
+  console.log('Sorting:', sorting);
+});
+
+// Subscribe to errors
+engine.on('error', (error) => {
+  console.error('Error:', error);
+});
+```
+
+## Package Exports
+
+| Path | Description |
+|------|-------------|
+| `@engine/data-grid` | Main entry point |
+| `@engine/data-grid/core` | Core module |
+| `@engine/data-grid/core/base` | Base utilities |
+| `@engine/data-grid/core/base/engine` | Grid engine |
+| `@engine/data-grid/core/base/events` | Event system |
+| `@engine/data-grid/core/base/features` | Feature management |
+| `@engine/data-grid/core/base/mutations` | Mutation handling |
+| `@engine/data-grid/core/base/persistence` | State persistence |
+| `@engine/data-grid/core/base/plugins` | Plugin system |
+| `@engine/data-grid/core/base/rendering` | Rendering utilities |
+| `@engine/data-grid/core/base/server` | Server-side support |
+| `@engine/data-grid/core/base/types` | TypeScript types |
+
+## CDN / Browser
 
 ```html
-<!-- Production (minified) -->
-<script src="https://unpkg.com/@i2c/data-grid-engine/dist/cdn/index.umd.min.js"></script>
-
-<!-- Development (with source maps) -->
-<script src="https://unpkg.com/@i2c/data-grid-engine/dist/cdn/index.umd.js"></script>
+<script src="https://unpkg.com/@engine/data-grid/dist/cdn/index.umd.min.js"></script>
 
 <script>
-  const engine = new DataGridEngine.TanStackGridEngine({
+  const { TanStackGridEngine } = DataGridEngine;
+  
+  const engine = new TanStackGridEngine({
     data: [...],
     columns: [...],
   });
 </script>
 ```
 
-## Package Exports
+## CommonJS
 
-| Import Path | Description |
-|-------------|-------------|
-| `@i2c/data-grid-engine` | Main entry (ESM/CJS auto-resolved) |
-| `@i2c/data-grid-engine/core` | Core module |
-| `@i2c/data-grid-engine/core/base` | Base utilities |
-| `@i2c/data-grid-engine/core/base/*` | Individual modules (engine, events, etc.) |
-| `@i2c/data-grid-engine/cdn` | UMD minified bundle |
-| `@i2c/data-grid-engine/cdn/dev` | UMD development bundle |
-
-## Build Outputs
-
-```
-dist/
-├── index.js          # ESM entry
-├── index.cjs         # CJS entry
-├── index.d.ts        # TypeScript declarations
-├── chunk-*.js        # Shared ESM chunks (tree-shaking)
-├── chunk-*.cjs       # Shared CJS chunks
-├── core/
-│   ├── index.js
-│   ├── index.cjs
-│   ├── index.d.ts
-│   └── base/
-│       ├── engine.js      # ESM
-│       ├── engine.cjs     # CJS
-│       ├── engine.d.ts    # Types
-│       ├── events.js
-│       ├── events.cjs
-│       ├── features.js
-│       └── ...
-└── cdn/              # UMD for browsers
-    ├── index.umd.min.js   # Production (minified)
-    └── index.umd.js       # Development
+```js
+const { TanStackGridEngine } = require('@engine/data-grid');
 ```
 
-## Development
+## TypeScript
 
-### Scripts
+This package is written in TypeScript and includes complete type definitions. No additional `@types/*` packages required.
 
-| Command | Description |
-|---------|-------------|
-| `npm run build` | Build ESM, CJS, and UMD bundles |
-| `npm run typecheck` | Run TypeScript type checking |
-| `npm test` | Run tests with Vitest |
-| `npm run test:watch` | Run Vitest in watch mode |
-| `npm run clean` | Remove dist folder |
-| `npm run dev` | Watch mode for development |
+```ts
+import type { 
+  GridFeatureConfig,
+  GridServerConfig,
+  GridEngineDiagnostics,
+} from '@engine/data-grid/core/base/types';
+```
 
-### Building
+## Peer Dependencies
+
+| Package | Version |
+|---------|---------|
+| `@tanstack/table-core` | `^8.0.0` |
+
+## Contributing
 
 ```bash
+# Install dependencies
+npm install
+
+# Run tests
+npm test
+
+# Type check
+npm run typecheck
+
+# Build
 npm run build
-```
-
-This generates:
-- **ESM** (`dist/esm/`) - Tree-shakable ES modules with TypeScript declarations
-- **CJS** (`dist/cjs/`) - CommonJS modules for Node.js
-- **UMD** (`dist/cdn/`) - Browser bundles (minified + development)
-
-## Git Workflow
-
-When integrating code review fixes from multiple branches into `main`:
-
-```bash
-git fetch --all --prune
-git checkout main
-git pull --ff-only origin main
-
-# For each reviewed branch
-git checkout feature/code-review-fixes
-git rebase main
-npm test && npm run typecheck
-git checkout main
-git merge --no-ff feature/code-review-fixes
-
-# Final verification
-npm test && npm run typecheck && npm run build
-git push origin main
 ```
 
 ## License
 
-ISC © i2c Inc
+MIT © TanStack
