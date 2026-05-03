@@ -178,14 +178,107 @@ export class TanStackGridEngine<TData extends RowData>
     private sanitizeOptionsOverride(
         override: Partial<TableOptions<TData>>,
     ): Partial<TableOptions<TData>> {
-        const sanitized = {
-            ...override,
-        };
+        const OPTION_ALLOWLIST: ReadonlySet<string> =
+            new Set([
+                'debugAll',
+                'debugTable',
+                'debugHeaders',
+                'debugColumns',
+                'debugRows',
+                'renderFallbackValue',
+                'autoResetAll',
+                'mergeOptions',
+                'meta',
+                'getCoreRowModel',
+                'getSubRows',
+                'getRowId',
+                'columns',
+                'defaultColumn',
+                'initialState',
+                'onColumnVisibilityChange',
+                'onColumnOrderChange',
+                'onColumnPinningChange',
+                'onColumnFiltersChange',
+                'filterFromLeafRows',
+                'maxLeafRowFilterDepth',
+                'globalFilterFn',
+                'onGlobalFilterChange',
+                'getFilteredRowModel',
+                'manualFiltering',
+                'enableFilters',
+                'enableColumnFilters',
+                'enableGlobalFilter',
+                'enableMultiRowSelection',
+                'enableRowSelection',
+                'enableSubRowSelection',
+                'onRowSelectionChange',
+                'onSortingChange',
+                'isMultiSortEvent',
+                'maxMultiSortColCount',
+                'enableMultiRemove',
+                'enableMultiSort',
+                'sortDescFirst',
+                'getSortedRowModel',
+                'manualSorting',
+                'enableSorting',
+                'enableSortingRemoval',
+                'enableRowPinning',
+                'keepPinnedRows',
+                'onRowPinningChange',
+                'getPaginationRowModel',
+                'onPaginationChange',
+                'manualPagination',
+                'pageCount',
+                'rowCount',
+                'autoResetPageIndex',
+                'getFacetedRowModel',
+                'getFacetedUniqueValues',
+                'getFacetedMinMaxValues',
+                'onGroupingChange',
+                'enableGrouping',
+                'getGroupedRowModel',
+                'manualGrouping',
+                'onExpandedChange',
+                'autoResetExpanded',
+                'enableExpanding',
+                'paginateExpandedRows',
+                'manualExpanding',
+                'getExpandedRowModel',
+                'columnResizeMode',
+                'columnResizeDirection',
+                'onColumnSizingChange',
+                'onColumnSizingInfoChange',
+            ]);
 
-        delete sanitized.data;
-        delete sanitized.columns;
-        delete sanitized.state;
-        delete sanitized.onStateChange;
+        const governanceLockedKeys: ReadonlySet<string> =
+            new Set([
+                'data',
+                'columns',
+                'state',
+                'onStateChange',
+            ]);
+
+        const sanitized: Partial<TableOptions<TData>> = {};
+        const blockedKeys: string[] = [];
+
+        for (const [key, value] of Object.entries(override)) {
+            if (governanceLockedKeys.has(key)) {
+                continue;
+            }
+
+            if (!OPTION_ALLOWLIST.has(key)) {
+                blockedKeys.push(key);
+                continue;
+            }
+
+            (sanitized as Record<string, unknown>)[key] = value;
+        }
+
+        if (blockedKeys.length > 0) {
+            throw new Error(
+                `Unsupported option override keys: ${blockedKeys.join(', ')}.`,
+            );
+        }
 
         return sanitized;
     }
@@ -227,6 +320,12 @@ export class TanStackGridEngine<TData extends RowData>
                                   column.accessorKey.length > 0
                               ? column.accessorKey
                               : undefined;
+                    const normalizedIdentity =
+                        columnId ??
+                        (typeof column.header ===
+                        'string'
+                            ? column.header
+                            : undefined);
 
                     const hasAccessorFn =
                         'accessorFn' in
@@ -253,21 +352,25 @@ export class TanStackGridEngine<TData extends RowData>
                         );
                     }
 
-                    if (
-                        columnId
-                    ) {
+                    if (normalizedIdentity) {
+                        const normalized =
+                            normalizedIdentity
+                                .trim()
+                                .toLowerCase()
+                                .replace(/[^a-z0-9]+/g, '_');
+
                         if (
                             seenIds.has(
-                                columnId,
+                                normalized,
                             )
                         ) {
                             throw new Error(
-                                `Duplicate column id detected: "${columnId}".`,
+                                `Duplicate normalized column identity detected: "${normalized}" from ${columnPath}.`,
                             );
                         }
 
                         seenIds.add(
-                            columnId,
+                            normalized,
                         );
                     }
 
@@ -357,15 +460,28 @@ export class TanStackGridEngine<TData extends RowData>
     ): void {
         const previous =
             this.state;
+        try {
+            mutate();
 
-        mutate();
+            this.state =
+                this.table.getState();
 
-        this.state =
-            this.table.getState();
-
-        this.emitStateChange(
-            previous,
-        );
+            this.emitStateChange(
+                previous,
+            );
+        } catch (error) {
+            this.state = previous;
+            this.syncTable();
+            this.eventBus.emit(
+                'error',
+                {
+                    message:
+                        'Table state mutation failed.',
+                    error,
+                },
+            );
+            throw error;
+        }
     }
 
     // =========================================================================
