@@ -34,8 +34,14 @@ import type {
 
 import {GridEventBus} from './events';
 import {GridFeaturesManager} from './features';
-import {GridPersistenceManager} from './persistence';
-import {GridPluginManager} from './plugins';
+import {
+    GridPersistenceManager,
+    type GridPersistenceOptions,
+} from './persistence';
+import {
+    GridPluginManager,
+    type GridPluginManagerOptions,
+} from './plugins';
 
 // ============================================================================
 // OPTIONS
@@ -48,6 +54,8 @@ export interface GridEngineOptions<TData extends RowData> {
     readonly initialState?: Partial<TableState>;
     readonly features?: ConstructorParameters<typeof GridFeaturesManager>[0];
     readonly plugins?: readonly GridPlugin<TData>[];
+    readonly persistence?: GridPersistenceOptions;
+    readonly pluginManager?: GridPluginManagerOptions;
 }
 
 // ============================================================================
@@ -106,11 +114,13 @@ export class TanStackGridEngine<TData extends RowData>
         this.persistence =
             new GridPersistenceManager<TData>(
                 this,
+                options.persistence,
             );
 
         this.plugins =
             new GridPluginManager<TData>(
                 this,
+                options.pluginManager,
             );
 
         this.syncTable();
