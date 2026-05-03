@@ -170,22 +170,20 @@ export class GridCore<TData extends RowData> {
                                 options.features,
                             }
                             : undefined,
+
+                    plugins:
+                        options.plugins,
+
+                    persistence:
+                        options.persistence,
+
+                    pluginManager:
+                        {
+                            strict:
+                                options.strict,
+                        },
                 },
             );
-
-        if (
-            options.plugins
-                ?.length
-        ) {
-            for (
-                const plugin
-                    of options.plugins
-            ) {
-                this.engine.registerPlugin(
-                    plugin,
-                );
-            }
-        }
 
         // =========================================================================
         // RENDERING
