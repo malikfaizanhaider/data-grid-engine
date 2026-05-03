@@ -488,6 +488,11 @@ export class GridPluginManager<
                 this.engine.getVisibleLeafColumns.bind(
                     this.engine,
                 ),
+
+            diagnostics:
+                this.engine.diagnostics.bind(
+                    this.engine,
+                ),
         };
     }
 

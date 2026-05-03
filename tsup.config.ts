@@ -1,0 +1,62 @@
+import { defineConfig } from 'tsup';
+
+export default defineConfig([
+  // ESM + CJS build (side-by-side, preserves module structure for tree-shaking)
+  {
+    entry: {
+      index: 'index.ts',
+      'core/index': 'core/index.ts',
+      'core/base/index': 'core/base/index.ts',
+      'core/base/core': 'core/base/core.ts',
+      'core/base/engine': 'core/base/engine.ts',
+      'core/base/events': 'core/base/events.ts',
+      'core/base/faceting': 'core/base/faceting.ts',
+      'core/base/features': 'core/base/features.ts',
+      'core/base/mutations': 'core/base/mutations.ts',
+      'core/base/persistence': 'core/base/persistence.ts',
+      'core/base/plugins': 'core/base/plugins.ts',
+      'core/base/render-utils': 'core/base/render-utils.ts',
+      'core/base/rendering': 'core/base/rendering.ts',
+      'core/base/server': 'core/base/server.ts',
+      'core/base/types': 'core/base/types.ts',
+    },
+    format: ['esm', 'cjs'],
+    outDir: 'dist',
+    dts: true,
+    sourcemap: true,
+    clean: true,
+    target: 'es2022',
+    splitting: true,
+    treeshake: true,
+  },
+  // UMD build for CDN (single bundled file - no tree-shaking needed for CDN)
+  {
+    entry: ['index.ts'],
+    format: ['iife'],
+    outDir: 'dist/cdn',
+    globalName: 'DataGridEngine',
+    dts: false,
+    sourcemap: true,
+    clean: true,
+    target: 'es2020',
+    splitting: false,
+    treeshake: true,
+    minify: true,
+    outExtension: () => ({ js: '.umd.min.js' }),
+  },
+  // UMD build (unminified) for development/debugging
+  {
+    entry: ['index.ts'],
+    format: ['iife'],
+    outDir: 'dist/cdn',
+    globalName: 'DataGridEngine',
+    dts: false,
+    sourcemap: true,
+    clean: false,
+    target: 'es2020',
+    splitting: false,
+    treeshake: true,
+    minify: false,
+    outExtension: () => ({ js: '.umd.js' }),
+  },
+]);
