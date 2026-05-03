@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import type {Table, TableOptions, TableState} from '@tanstack/table-core';
-import {TanStackGridEngine} from "../core/base";
+import {TanStackGridEngine} from "../grid/base";
 
 type Row = { id: number; name: string };
 
