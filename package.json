@@ -1,5 +1,5 @@
 {
-  "name": "data-grid-engine",
+  "name": "@i2c-data-grid/engine",
   "version": "0.1.0",
   "description": "TanStack Table engine wrapper with TypeScript and test setup",
   "homepage": "https://github.com/malikfaizanhaider/data-grid-engine#readme",
