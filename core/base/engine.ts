@@ -827,6 +827,54 @@ export class TanStackGridEngine<TData extends RowData>
         return this.persistence.exportState();
     }
 
+    importState(
+        snapshot: Parameters<
+            GridPersistenceManager<TData>['importState']
+        >[0],
+    ): void {
+        this.assertNotDestroyed();
+
+        this.persistence.importState(
+            snapshot,
+        );
+    }
+
+    registerPlugin(
+        plugin: GridPlugin<TData>,
+    ): void {
+        this.assertNotDestroyed();
+
+        this.plugins.register(
+            plugin,
+        );
+    }
+
+    unregisterPlugin(
+        name: string,
+    ): void {
+        this.assertNotDestroyed();
+
+        this.plugins.unregister(
+            name,
+        );
+    }
+
+    persistenceDiagnostics(): ReturnType<
+        GridPersistenceManager<TData>['diagnostics']
+    > {
+        this.assertNotDestroyed();
+
+        return this.persistence.diagnostics();
+    }
+
+    pluginDiagnostics(): ReturnType<
+        GridPluginManager<TData>['diagnostics']
+    > {
+        this.assertNotDestroyed();
+
+        return this.plugins.diagnostics();
+    }
+
     // =========================================================================
     // DIAGNOSTICS
     // =========================================================================
