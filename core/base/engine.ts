@@ -157,18 +157,19 @@ export class TanStackGridEngine<TData extends RowData>
         );
     }
 
-    private syncTable(): void {
+    private syncTable(
+        options?: {
+            readonly override?: Partial<TableOptions<TData>>;
+        },
+    ): void {
         this.table.setOptions(
             (
                 previous,
             ) => ({
                 ...previous,
-                data: [
-                    ...this.rows,
-                ],
-                columns: [
-                    ...this.columns,
-                ],
+                ...options?.override,
+                data: this.rows as TData[],
+                columns: this.columns as ColumnDef<TData, unknown>[],
                 state: this.state,
             }),
         );
@@ -315,20 +316,10 @@ export class TanStackGridEngine<TData extends RowData>
                 );
         }
 
-        this.table.setOptions(
-            (
-                previous,
-            ) => ({
-                ...previous,
-                ...updater,
-                data: [
-                    ...this.rows,
-                ],
-                columns: [
-                    ...this.columns,
-                ],
-                state: this.state,
-            }),
+        this.syncTable(
+            {
+                override: updater,
+            },
         );
     }
 
