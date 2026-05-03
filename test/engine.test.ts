@@ -1,8 +1,8 @@
 import {describe, expect, it} from 'vitest';
 import type {Table, TableOptions, TableState} from '@tanstack/table-core';
-import {TanStackGridEngine} from './engine';
+import {TanStackGridEngine} from "../core/base";
 
-type Row = {id: number; name: string};
+type Row = { id: number; name: string };
 
 function createMockTable(initialState: TableState = {} as TableState): Table<Row> {
     let state = initialState;
@@ -15,7 +15,8 @@ function createMockTable(initialState: TableState = {} as TableState): Table<Row
             options = updater(options);
             (table as any).options = options;
         },
-        setSorting: () => {},
+        setSorting: () => {
+        },
     } as unknown as Table<Row>;
 
     return table;
@@ -60,7 +61,7 @@ describe('TanStackGridEngine governance hardening', () => {
             columns: [],
         });
 
-        let payload: {message: string; error?: unknown} | undefined;
+        let payload: { message: string; error?: unknown } | undefined;
         engine.on('error', (event) => {
             payload = event;
         });
