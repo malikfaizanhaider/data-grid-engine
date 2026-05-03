@@ -19,46 +19,46 @@
   "typesVersions": {
     "*": {
       "core": [
-        "./dist/core/index.d.ts"
+        "./dist/grid/index.d.ts"
       ],
       "core/base": [
-        "./dist/core/base/index.d.ts"
+        "./dist/grid/base/index.d.ts"
       ],
       "core/base/core": [
-        "./dist/core/base/core.d.ts"
+        "./dist/grid/base/core.d.ts"
       ],
       "core/base/engine": [
-        "./dist/core/base/engine.d.ts"
+        "./dist/grid/base/engine.d.ts"
       ],
       "core/base/events": [
-        "./dist/core/base/events.d.ts"
+        "./dist/grid/base/events.d.ts"
       ],
       "core/base/faceting": [
-        "./dist/core/base/faceting.d.ts"
+        "./dist/grid/base/faceting.d.ts"
       ],
       "core/base/features": [
-        "./dist/core/base/features.d.ts"
+        "./dist/grid/base/features.d.ts"
       ],
       "core/base/mutations": [
-        "./dist/core/base/mutations.d.ts"
+        "./dist/grid/base/mutations.d.ts"
       ],
       "core/base/persistence": [
-        "./dist/core/base/persistence.d.ts"
+        "./dist/grid/base/persistence.d.ts"
       ],
       "core/base/plugins": [
-        "./dist/core/base/plugins.d.ts"
+        "./dist/grid/base/plugins.d.ts"
       ],
       "core/base/render-utils": [
-        "./dist/core/base/render-utils.d.ts"
+        "./dist/grid/base/render-utils.d.ts"
       ],
       "core/base/rendering": [
-        "./dist/core/base/rendering.d.ts"
+        "./dist/grid/base/rendering.d.ts"
       ],
       "core/base/server": [
-        "./dist/core/base/server.d.ts"
+        "./dist/grid/base/server.d.ts"
       ],
       "core/base/types": [
-        "./dist/core/base/types.d.ts"
+        "./dist/grid/base/types.d.ts"
       ]
     }
   },
@@ -75,142 +75,142 @@
     },
     "./core": {
       "import": {
-        "types": "./dist/core/index.d.ts",
-        "default": "./dist/core/index.js"
+        "types": "./dist/grid/index.d.ts",
+        "default": "./dist/grid/index.js"
       },
       "require": {
-        "types": "./dist/core/index.d.ts",
-        "default": "./dist/core/index.cjs"
+        "types": "./dist/grid/index.d.ts",
+        "default": "./dist/grid/index.cjs"
       }
     },
     "./core/base": {
       "import": {
-        "types": "./dist/core/base/index.d.ts",
-        "default": "./dist/core/base/index.js"
+        "types": "./dist/grid/base/index.d.ts",
+        "default": "./dist/grid/base/index.js"
       },
       "require": {
-        "types": "./dist/core/base/index.d.ts",
-        "default": "./dist/core/base/index.cjs"
+        "types": "./dist/grid/base/index.d.ts",
+        "default": "./dist/grid/base/index.cjs"
       }
     },
     "./core/base/core": {
       "import": {
-        "types": "./dist/core/base/core.d.ts",
-        "default": "./dist/core/base/core.js"
+        "types": "./dist/grid/base/core.d.ts",
+        "default": "./dist/grid/base/core.js"
       },
       "require": {
-        "types": "./dist/core/base/core.d.ts",
-        "default": "./dist/core/base/core.cjs"
+        "types": "./dist/grid/base/core.d.ts",
+        "default": "./dist/grid/base/core.cjs"
       }
     },
     "./core/base/engine": {
       "import": {
-        "types": "./dist/core/base/engine.d.ts",
-        "default": "./dist/core/base/engine.js"
+        "types": "./dist/grid/base/engine.d.ts",
+        "default": "./dist/grid/base/engine.js"
       },
       "require": {
-        "types": "./dist/core/base/engine.d.ts",
-        "default": "./dist/core/base/engine.cjs"
+        "types": "./dist/grid/base/engine.d.ts",
+        "default": "./dist/grid/base/engine.cjs"
       }
     },
     "./core/base/events": {
       "import": {
-        "types": "./dist/core/base/events.d.ts",
-        "default": "./dist/core/base/events.js"
+        "types": "./dist/grid/base/events.d.ts",
+        "default": "./dist/grid/base/events.js"
       },
       "require": {
-        "types": "./dist/core/base/events.d.ts",
-        "default": "./dist/core/base/events.cjs"
+        "types": "./dist/grid/base/events.d.ts",
+        "default": "./dist/grid/base/events.cjs"
       }
     },
     "./core/base/faceting": {
       "import": {
-        "types": "./dist/core/base/faceting.d.ts",
-        "default": "./dist/core/base/faceting.js"
+        "types": "./dist/grid/base/faceting.d.ts",
+        "default": "./dist/grid/base/faceting.js"
       },
       "require": {
-        "types": "./dist/core/base/faceting.d.ts",
-        "default": "./dist/core/base/faceting.cjs"
+        "types": "./dist/grid/base/faceting.d.ts",
+        "default": "./dist/grid/base/faceting.cjs"
       }
     },
     "./core/base/features": {
       "import": {
-        "types": "./dist/core/base/features.d.ts",
-        "default": "./dist/core/base/features.js"
+        "types": "./dist/grid/base/features.d.ts",
+        "default": "./dist/grid/base/features.js"
       },
       "require": {
-        "types": "./dist/core/base/features.d.ts",
-        "default": "./dist/core/base/features.cjs"
+        "types": "./dist/grid/base/features.d.ts",
+        "default": "./dist/grid/base/features.cjs"
       }
     },
     "./core/base/mutations": {
       "import": {
-        "types": "./dist/core/base/mutations.d.ts",
-        "default": "./dist/core/base/mutations.js"
+        "types": "./dist/grid/base/mutations.d.ts",
+        "default": "./dist/grid/base/mutations.js"
       },
       "require": {
-        "types": "./dist/core/base/mutations.d.ts",
-        "default": "./dist/core/base/mutations.cjs"
+        "types": "./dist/grid/base/mutations.d.ts",
+        "default": "./dist/grid/base/mutations.cjs"
       }
     },
     "./core/base/persistence": {
       "import": {
-        "types": "./dist/core/base/persistence.d.ts",
-        "default": "./dist/core/base/persistence.js"
+        "types": "./dist/grid/base/persistence.d.ts",
+        "default": "./dist/grid/base/persistence.js"
       },
       "require": {
-        "types": "./dist/core/base/persistence.d.ts",
-        "default": "./dist/core/base/persistence.cjs"
+        "types": "./dist/grid/base/persistence.d.ts",
+        "default": "./dist/grid/base/persistence.cjs"
       }
     },
     "./core/base/plugins": {
       "import": {
-        "types": "./dist/core/base/plugins.d.ts",
-        "default": "./dist/core/base/plugins.js"
+        "types": "./dist/grid/base/plugins.d.ts",
+        "default": "./dist/grid/base/plugins.js"
       },
       "require": {
-        "types": "./dist/core/base/plugins.d.ts",
-        "default": "./dist/core/base/plugins.cjs"
+        "types": "./dist/grid/base/plugins.d.ts",
+        "default": "./dist/grid/base/plugins.cjs"
       }
     },
     "./core/base/render-utils": {
       "import": {
-        "types": "./dist/core/base/render-utils.d.ts",
-        "default": "./dist/core/base/render-utils.js"
+        "types": "./dist/grid/base/render-utils.d.ts",
+        "default": "./dist/grid/base/render-utils.js"
       },
       "require": {
-        "types": "./dist/core/base/render-utils.d.ts",
-        "default": "./dist/core/base/render-utils.cjs"
+        "types": "./dist/grid/base/render-utils.d.ts",
+        "default": "./dist/grid/base/render-utils.cjs"
       }
     },
     "./core/base/rendering": {
       "import": {
-        "types": "./dist/core/base/rendering.d.ts",
-        "default": "./dist/core/base/rendering.js"
+        "types": "./dist/grid/base/rendering.d.ts",
+        "default": "./dist/grid/base/rendering.js"
       },
       "require": {
-        "types": "./dist/core/base/rendering.d.ts",
-        "default": "./dist/core/base/rendering.cjs"
+        "types": "./dist/grid/base/rendering.d.ts",
+        "default": "./dist/grid/base/rendering.cjs"
       }
     },
     "./core/base/server": {
       "import": {
-        "types": "./dist/core/base/server.d.ts",
-        "default": "./dist/core/base/server.js"
+        "types": "./dist/grid/base/server.d.ts",
+        "default": "./dist/grid/base/server.js"
       },
       "require": {
-        "types": "./dist/core/base/server.d.ts",
-        "default": "./dist/core/base/server.cjs"
+        "types": "./dist/grid/base/server.d.ts",
+        "default": "./dist/grid/base/server.cjs"
       }
     },
     "./core/base/types": {
       "import": {
-        "types": "./dist/core/base/types.d.ts",
-        "default": "./dist/core/base/types.js"
+        "types": "./dist/grid/base/types.d.ts",
+        "default": "./dist/grid/base/types.js"
       },
       "require": {
-        "types": "./dist/core/base/types.d.ts",
-        "default": "./dist/core/base/types.cjs"
+        "types": "./dist/grid/base/types.d.ts",
+        "default": "./dist/grid/base/types.cjs"
       }
     },
     "./cdn": "./dist/cdn/index.umd.min.js",
