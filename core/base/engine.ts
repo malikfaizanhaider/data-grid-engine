@@ -313,19 +313,19 @@ export class TanStackGridEngine<TData extends RowData>
                         'string' &&
                         column.id.length > 0
                             ? column.id
-                            : 'accessorKey' in
-                                      column &&
-                                  typeof column.accessorKey ===
-                                      'string' &&
-                                  column.accessorKey.length > 0
-                              ? column.accessorKey
-                              : undefined;
-                    const normalizedIdentity =
+                            : undefined;
+                    const derivedIdentity =
                         columnId ??
-                        (typeof column.header ===
-                        'string'
-                            ? column.header
-                            : undefined);
+                        ('accessorKey' in
+                            column &&
+                        typeof column.accessorKey ===
+                            'string' &&
+                        column.accessorKey.length > 0
+                            ? column.accessorKey.replace(/\./g, '_')
+                            : typeof column.header ===
+                              'string'
+                              ? column.header
+                              : undefined);
 
                     const hasAccessorFn =
                         'accessorFn' in
@@ -352,25 +352,19 @@ export class TanStackGridEngine<TData extends RowData>
                         );
                     }
 
-                    if (normalizedIdentity) {
-                        const normalized =
-                            normalizedIdentity
-                                .trim()
-                                .toLowerCase()
-                                .replace(/[^a-z0-9]+/g, '_');
-
+                    if (derivedIdentity) {
                         if (
                             seenIds.has(
-                                normalized,
+                                derivedIdentity,
                             )
                         ) {
                             throw new Error(
-                                `Duplicate normalized column identity detected: "${normalized}" from ${columnPath}.`,
+                                `Duplicate column identity detected: "${derivedIdentity}" from ${columnPath}.`,
                             );
                         }
 
                         seenIds.add(
-                            normalized,
+                            derivedIdentity,
                         );
                     }
 
