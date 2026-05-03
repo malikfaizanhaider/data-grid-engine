@@ -37,7 +37,7 @@ describe('TanStackGridEngine governance hardening', () => {
         ).toThrow(/Unsupported option override keys/);
     });
 
-    it('rejects normalized column identity collisions across accessorKey/header/id', () => {
+    it('preserves distinct explicit ids while still rejecting accessorKey-derived collisions', () => {
         const engine = new TanStackGridEngine<Row>({
             table: createMockTable(),
             data: [],
@@ -46,10 +46,17 @@ describe('TanStackGridEngine governance hardening', () => {
 
         expect(() =>
             engine.setColumns([
+                {id: 'User-ID', header: 'User ID'},
+                {id: 'user_id', header: 'User Id'},
+            ]),
+        ).not.toThrow();
+
+        expect(() =>
+            engine.setColumns([
                 {accessorKey: 'name.first', header: 'First Name'},
                 {id: 'name_first', header: 'Another'},
             ]),
-        ).toThrow(/Duplicate normalized column identity detected/);
+        ).toThrow(/Duplicate column identity detected/);
     });
 
     it('emits error event and rolls back state when table mutation throws', () => {
