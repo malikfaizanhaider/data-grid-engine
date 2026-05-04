@@ -242,9 +242,14 @@
   "devDependencies": {
     "@tanstack/table-core": "^8.21.3",
     "@types/node": "^22.15.30",
+    "@types/react": "^19.2.14",
     "tsup": "^8.5.1",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "lit": "^3.3.2",
+    "react": "^19.2.5"
   }
 }
